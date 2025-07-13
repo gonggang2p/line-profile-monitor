@@ -1,4 +1,14 @@
 {
-  "lineChannelAccessToken": "YOUR_LINE_CHANNEL_ACCESS_TOKEN",
-  "lineNotifyToken": "YOUR_LINE_NOTIFY_TOKEN"
+  "accounts": [
+    {
+      "name": "บัญชี A",
+      "channelAccessToken": "ACCESS_TOKEN_บัญชี_A",
+      "notifyToken": "LINE_NOTIFY_TOKEN_บัญชี_A"
+    },
+    {
+      "name": "บัญชี B",
+      "channelAccessToken": "ACCESS_TOKEN_บัญชี_B",
+      "notifyToken": "LINE_NOTIFY_TOKEN_บัญชี_B"
+    }
+  ]
 }

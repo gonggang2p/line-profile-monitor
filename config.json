@@ -2,13 +2,9 @@
   "accounts": [
     {
       "name": "บัญชี A",
-      "channelAccessToken": "ACCESS_TOKEN_บัญชี_A",
-      "notifyToken": "LINE_NOTIFY_TOKEN_บัญชี_A"
-    },
-    {
-      "name": "บัญชี B",
-      "channelAccessToken": "ACCESS_TOKEN_บัญชี_B",
-      "notifyToken": "LINE_NOTIFY_TOKEN_บัญชี_B"
+      "channelAccessToken": "LINE_CHANNEL_ACCESS_TOKEN",
+      "telegramBotToken": "TELEGRAM_BOT_TOKEN",
+      "telegramChatId": "TELEGRAM_CHAT_ID"
     }
   ]
 }

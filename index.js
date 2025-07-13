@@ -3,7 +3,7 @@ const fs = require('fs');
 const cron = require('node-cron');
 const config = require('./config.json');
 
-// ฟังก์ชันโหลดโปรไฟล์ก่อนหน้า
+// โหลดโปรไฟล์เก่า
 function loadPreviousProfile(accountName) {
   const filename = `lastProfile_${accountName}.json`;
   if (!fs.existsSync(filename)) return {};
@@ -11,13 +11,13 @@ function loadPreviousProfile(accountName) {
   return JSON.parse(raw);
 }
 
-// ฟังก์ชันบันทึกโปรไฟล์ปัจจุบัน
+// บันทึกโปรไฟล์ใหม่
 function saveProfile(accountName, profile) {
   const filename = `lastProfile_${accountName}.json`;
   fs.writeFileSync(filename, JSON.stringify(profile, null, 2));
 }
 
-// ฟังก์ชันดึงข้อมูลบัญชี LINE OA
+// ดึงข้อมูล OA
 async function getLineProfile(channelAccessToken) {
   const res = await axios.get('https://api.line.me/v2/bot/info', {
     headers: {
@@ -30,20 +30,15 @@ async function getLineProfile(channelAccessToken) {
   };
 }
 
-// ฟังก์ชันแจ้งเตือนผ่าน LINE Notify
-async function sendLineNotify(token, message) {
-  await axios.post('https://notify-api.line.me/api/notify',
-    new URLSearchParams({ message }),
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    }
-  );
+// ส่งแจ้งเตือนผ่าน Telegram
+async function sendTelegram(botToken, chatId, message) {
+  await axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    chat_id: chatId,
+    text: message
+  });
 }
 
-// ฟังก์ชันหลัก: ตรวจสอบแต่ละบัญชี
+// ตรวจสอบทุกบัญชี
 async function checkAllAccounts() {
   for (const account of config.accounts) {
     try {
@@ -60,10 +55,10 @@ async function checkAllAccounts() {
       }
 
       if (changes.length > 0) {
-        const msg = `📢 [แจ้งเตือน: ${account.name}]\n${changes.join('\n')}`;
-        await sendLineNotify(account.notifyToken, msg);
+        const msg = `📢 [${account.name}] พบการเปลี่ยนแปลง:\n${changes.join('\n')}`;
+        await sendTelegram(account.telegramBotToken, account.telegramChatId, msg);
         saveProfile(account.name, current);
-        console.log(`✅ พบการเปลี่ยนแปลง: ${account.name}`);
+        console.log(`✅ แจ้งเตือนแล้ว: ${account.name}`);
       } else {
         console.log(`✅ ไม่มีการเปลี่ยนแปลง: ${account.name}`);
       }
@@ -73,11 +68,11 @@ async function checkAllAccounts() {
   }
 }
 
-// 🔁 รันทุกชั่วโมง
+// ตั้ง cron รันทุกชั่วโมง
 cron.schedule('0 * * * *', () => {
-  console.log('🔁 เริ่มตรวจสอบบัญชีทั้งหมด...');
+  console.log('🔁 ตรวจสอบ LINE OA...');
   checkAllAccounts();
 });
 
-// รันทันทีเมื่อเริ่ม
+// รันทันทีเมื่อเริ่มต้น
 checkAllAccounts();
